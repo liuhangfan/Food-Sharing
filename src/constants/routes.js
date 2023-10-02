@@ -1,0 +1,11 @@
+export const ACCOUNT = '/account';
+export const ADD_FOOD = '/add-food';
+export const FOOD_DETAIL = '/detail/:foodId';
+export const FOODS = '/foods';
+export const EDIT_PROFILE = '/account-edit';
+export const SETTINGS = '/settings';
+export const LANDING = '/';
+export const LOG_IN = '/login';
+export const MY_FOOD_HISTORY = '/my-food-history';
+export const PASSWORD_FORGET = '/pw-forget';
+export const SIGN_UP = '/sign-up';
