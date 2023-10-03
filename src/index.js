@@ -1,21 +1,31 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import {BrowserRouter, Route, Switch} from 'react-router-dom';
+import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import * as ROUTES from './constants/routes';
 import HomePage from './pages/HomePage';
+import './index.css';
+import Footer from './components/Footer/Footer';
+import Navbar from './components/Navbar/Navbar';
+import ComplexNavbar from './components/Navbar/ComplexNavbar';
+// const WithFooter = ({children}) => (
+//   <React.Fragment>
+//     {children}
+//     <Footer />
+//   </React.Fragment>
+// );
 
 const AppBase = () => (
-  <Switch>
+    <Routes>
     <Route
       exact
       path={ROUTES.LANDING}
-      render={() => (
-        // <WithFooter>
-        //   <WithNavbar>
-            <HomePage />
-        //   </WithNavbar>
-        // </WithFooter>
-      )}
+      element={
+        <React.Fragment>
+           <ComplexNavbar />
+           <HomePage />
+           <Footer />
+        </React.Fragment>
+       }
     />
     <Route
       path={ROUTES.PASSWORD_FORGET}
@@ -47,7 +57,7 @@ const AppBase = () => (
     <Route
       path={ROUTES.SETTINGS}
     />
-  </Switch>
+    </Routes>
 );
 
 ReactDOM.render(
