@@ -1,12 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import {Provider} from 'react-redux';
+import store from './redux/store/index';
 import {BrowserRouter, Route, Routes} from 'react-router-dom';
 import * as ROUTES from './constants/routes';
 import HomePage from './pages/HomePage';
 import './index.css';
 import Footer from './components/Footer/Footer';
 import Navbar from './components/Navbar/Navbar';
-import ComplexNavbar from './components/Navbar/ComplexNavbar';
 // const WithFooter = ({children}) => (
 //   <React.Fragment>
 //     {children}
@@ -21,7 +22,7 @@ const AppBase = () => (
       path={ROUTES.LANDING}
       element={
         <React.Fragment>
-           <ComplexNavbar />
+           <Navbar />
            <HomePage />
            <Footer />
         </React.Fragment>
@@ -62,7 +63,9 @@ const AppBase = () => (
 
 ReactDOM.render(
   <BrowserRouter>
-    <AppBase />
+    <Provider store={store}>
+      <AppBase />
+    </Provider>
   </BrowserRouter>,
   document.getElementById('root')
 );
