@@ -8,12 +8,8 @@ import HomePage from './pages/HomePage';
 import './index.css';
 import Footer from './components/Footer/Footer';
 import Navbar from './components/Navbar/Navbar';
-// const WithFooter = ({children}) => (
-//   <React.Fragment>
-//     {children}
-//     <Footer />
-//   </React.Fragment>
-// );
+import SignInPage from './pages/SignInPage';
+
 
 const AppBase = () => (
     <Routes>
@@ -51,6 +47,12 @@ const AppBase = () => (
     />
     <Route
       path={ROUTES.LOG_IN}
+      element={
+        <React.Fragment>
+           <SignInPage />
+           <Footer />
+        </React.Fragment>
+       }
     />
     <Route
       path={ROUTES.EDIT_PROFILE}
