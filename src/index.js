@@ -8,8 +8,8 @@ import HomePage from './pages/HomePage';
 import './index.css';
 import Footer from './components/Footer/Footer';
 import Navbar from './components/Navbar/Navbar';
-import SignInPage from './pages/SignInPage';
-import Firebase, {FirebaseContext} from './components/Firebase';
+import SignInPageFB from './pages/SignInPageFB';
+import {AuthUserProvider} from './components/Firebase/auth';
 
 const AppBase = () => (
     <Routes>
@@ -49,7 +49,7 @@ const AppBase = () => (
       path={ROUTES.LOG_IN}
       element={
         <React.Fragment>
-           <SignInPage />
+           <SignInPageFB />
            <Footer />
         </React.Fragment>
        }
@@ -66,9 +66,9 @@ const AppBase = () => (
 ReactDOM.render(
   <BrowserRouter>
     <Provider store={store}>
-      <FirebaseContext.Provider value={new Firebase()}>
+    <AuthUserProvider>
         <AppBase />
-      </FirebaseContext.Provider>
+    </AuthUserProvider>
     </Provider>
   </BrowserRouter>,
   document.getElementById('root')

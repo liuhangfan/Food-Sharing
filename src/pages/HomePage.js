@@ -19,7 +19,7 @@ const HomePage = props => (
         Sharing aimed at efficiently redistributing surplus food to those who
         need it the most.</p>
       <div class="flex justify-center">
-        <a href={ROUTES.SIGN_UP}>
+        <a href={ROUTES.LOG_IN}>
           <button class="inline-flex text-white bg-indigo-500 border-0 py-2 px-6 focus:outline-none hover:bg-indigo-600 rounded text-lg">Join Now</button>
         </a>
         <a href={ROUTES.FOODS}>
