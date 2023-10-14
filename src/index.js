@@ -9,7 +9,7 @@ import './index.css';
 import Footer from './components/Footer/Footer';
 import Navbar from './components/Navbar/Navbar';
 import SignInPage from './pages/SignInPage';
-
+import Firebase, {FirebaseContext} from './components/Firebase';
 
 const AppBase = () => (
     <Routes>
@@ -66,7 +66,9 @@ const AppBase = () => (
 ReactDOM.render(
   <BrowserRouter>
     <Provider store={store}>
-      <AppBase />
+      <FirebaseContext.Provider value={new Firebase()}>
+        <AppBase />
+      </FirebaseContext.Provider>
     </Provider>
   </BrowserRouter>,
   document.getElementById('root')

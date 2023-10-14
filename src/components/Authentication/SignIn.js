@@ -8,13 +8,12 @@ import {formReducer, errorReducer} from '../../helpers/validationHelper';
 import * as ROUTES from '../../constants/routes';
 
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
-import {
-    Card,
-    Input,
-    Checkbox,
-    Button,
-    Typography,
-  } from "@material-tailwind/react";
+
+
+import {CircularProgress, Container, Dialog, Typography } from '@mui/material';
+import { EmailAuthProvider } from 'firebase/auth';
+import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
+
 const ERROR_CODE_ACCOUNT_EXISTS =
   'auth/account-exists-with-different-credential';
 
@@ -88,6 +87,27 @@ SignInFormBase.propTypes = {
     history: PropTypes.object
 };
 
-const SignInForm = SignInFormBase;
+
+const REDIRECT_PAGE = '/';
+const uiConfig = {
+    signInFlow: 'popup', // popup signin flow rather than redirect flow
+    signInSuccessUrl: REDIRECT_PAGE,
+    signInOptions: [
+      EmailAuthProvider.PROVIDER_ID
+    ],
+  };
+
+const SignFormFireBase = props => {
+    
+    <StyledFirebaseAuth uiConfig={uiConfig} firebaseAuth={props.firebase.auth}/>
+    
+}
+
+SignFormFireBase.propTypes = {
+    firebase: PropTypes.object,
+    history: PropTypes.object
+};
+
+const SignInForm = SignFormFireBase;
 
 export default SignInForm
