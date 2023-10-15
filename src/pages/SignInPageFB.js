@@ -8,7 +8,9 @@ import { useAuth } from '../components/Firebase/auth';
 import { auth } from '../components/Firebase/firebase';
 import {Typography, Button } from '@material-tailwind/react';
 import { useNavigate } from "react-router-dom";
-const REDIRECT_PAGE = '/';
+import * as ROUTES from '../constants/routes.js';
+
+const REDIRECT_PAGE = ROUTES.ACCOUNT;
 
 // Configure FirebaseUI.
 const uiConfig = {

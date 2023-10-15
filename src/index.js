@@ -10,6 +10,7 @@ import Footer from './components/Footer/Footer';
 import Navbar from './components/Navbar/Navbar';
 import SignInPageFB from './pages/SignInPageFB';
 import {AuthUserProvider} from './components/Firebase/auth';
+import MyFoodPage from './pages/MyFoodPage';
 
 const AppBase = () => (
     <Routes>
@@ -29,6 +30,13 @@ const AppBase = () => (
     />
     <Route
       path={ROUTES.ACCOUNT}
+      element={
+        <React.Fragment>
+           <Navbar />
+           <MyFoodPage />
+           <Footer />
+        </React.Fragment>
+       }
     />
     <Route
       path={ROUTES.FOODS}

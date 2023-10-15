@@ -21,6 +21,7 @@ import {
 import * as ROUTES from '../../constants/routes';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router-dom';
+import {useAuth} from '../../components/Firebase/'
  
 // profile menu component
 const profileMenuItems = [
