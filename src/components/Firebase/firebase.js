@@ -2,22 +2,20 @@
 // TODO: Add SDKs for Firebase products that you want to use
 // https://firebase.google.com/docs/web/setup#available-libraries
 import { initializeApp } from 'firebase/app';
-import 'firebase/auth';
-import 'firebase/firestore';
-import 'firebase/storage';
 import { getAuth } from 'firebase/auth';
+import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // Your web app's Firebase configuration
 // For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const config = {
-  apiKey: "AIzaSyCMlbQAZEPFE0ZVx5SmtT1TZs7qqA2vRxI",
-  authDomain: "food-sharing-77771.firebaseapp.com",
-  projectId: "food-sharing-77771",
-  storageBucket: "food-sharing-77771.appspot.com",
-  messagingSenderId: "509642709614",
-  appId: "1:509642709614:web:2da7e2588669b4b6df647f",
-  measurementId: "G-WVCLXPE96R"
+  apiKey: "AIzaSyBuil7Ruo6gJjJ9vNlbQybD06uxyxSWD6I",
+  authDomain: "food-sharing-16423.firebaseapp.com",
+  projectId: "food-sharing-16423",
+  storageBucket: "food-sharing-16423.appspot.com",
+  messagingSenderId: "572342170330",
+  appId: "1:572342170330:web:f6565022093bce02b3abe3",
+  measurementId: "G-ED322C89TW"
 };
 
 // const app = initializeApp(config);
@@ -165,4 +163,5 @@ const config = {
 export const app = initializeApp(config);
 export const auth = getAuth(app);
 export const storage = getStorage(app); 
+export const db = getFirestore(app);
 

@@ -18,8 +18,7 @@ const uiConfig = {
   signInSuccessUrl: REDIRECT_PAGE,
   signInOptions: [
     EmailAuthProvider.PROVIDER_ID,
-    GoogleAuthProvider.PROVIDER_ID,
-    GithubAuthProvider.PROVIDER_ID
+    GoogleAuthProvider.PROVIDER_ID
   ],
 };
 

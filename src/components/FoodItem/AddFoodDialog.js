@@ -4,25 +4,28 @@ import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { useAuth } from '../Firebase/auth'; // Adjust the import path if needed
-// import { addReceipt, updateReceipt } from '../firebase/firestore';
 import { replaceImage, uploadImage } from '../Firebase/storage'; // Adjust the import path if needed
 import { FOOD_IMAGE_ENUM } from './foodImageEnum';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
+import { addFood} from '../Firebase/firestore';
 import dayjs from 'dayjs';
 import DialogTitle from '@mui/material/DialogTitle';
-
-
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
+import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
 const DEFAULT_FILE_NAME = "No file selected";
 
 const DEFAULT_FORM_STATE = {
   address: "",
-  date: null,
   bestBeforeDate: null,
+  pickupBeforeDate: null,
+  createDate: null,
   fileName: DEFAULT_FILE_NAME,
   file: null,
   imageBucket: "",
   imageUrl: "",
   description: "",
+  title: "",
 };
 
 const AddFoodDialog = (props) => {
@@ -60,6 +63,7 @@ const AddFoodDialog = (props) => {
     setIsSubmitting(true);
 
     try {
+      
       if (isEdit) {
         // Check whether image was changed - fileName will be not null
         if (formFields.fileName) {
@@ -71,12 +75,12 @@ const AddFoodDialog = (props) => {
         // Adding
         // Store image into Storage
         const bucket = await uploadImage(formFields.file, authUser.uid);
-
-        // Store data into Firestore
-        //   await addReceipt(authUser.uid, formFields.date, formFields.locationName, formFields.address, formFields.items, formFields.amount, bucket);
+        //Store data into Firestore
+        await addFood(authUser.uid, formFields.bestBeforeDate, formFields.pickupBeforeDate, formFields.description,formFields.address, formFields.title, bucket);
       }
       props.onSuccess(isEdit ? FOOD_IMAGE_ENUM.edit : FOOD_IMAGE_ENUM.add);
     } catch (error) {
+      console.log(error)
       props.onError(isEdit ? FOOD_IMAGE_ENUM.edit : FOOD_IMAGE_ENUM.add);
     }
 
@@ -92,11 +96,8 @@ const AddFoodDialog = (props) => {
       fullWidth={true}
       component="form"
     >
-      {/* <Typography variant="h4" sx={{paddingLeft: '0.6em'}}>
-        {isEdit ? "EDIT" : "ADD"} My Sharing Foods:
-      </Typography> */}
       <DialogTitle>
-        {isEdit ? "EDIT" : "ADD"} My Sharing Foods:
+        {isEdit ? "EDIT" : "ADD"} Sharing Food:
       </DialogTitle>
       <DialogContent sx={{
           display: 'flex',
@@ -104,21 +105,37 @@ const AddFoodDialog = (props) => {
           gap: '0.8em',
           padding: '0.6em',
         }}>
-        <Stack direction="row" spacing={2}>
-          {(isEdit && !formFields.fileName) && <Avatar alt="receipt image" src={formFields.imageUrl} />}
-          <Button variant="outlined" component="label" color="secondary">
-            Upload Receipt
-            <input type="file" hidden onInput={(event) => { setFileData(event.target) }} />
-          </Button>
-          <Typography>{formFields.fileName}</Typography>
-        </Stack>
+        <TextField label="Title" variant="standard" type="text" onChange={(event) => updateFormField(event, 'title')} />
+        <TextField label="Address" variant="standard" type="text" onChange={(event) => updateFormField(event, 'address')} />
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DemoContainer components={['DateTimePicker']}>
+            <DateTimePicker
+              label="Pickup Before Date"
+              value={formFields.pickupBeforeDate}
+              viewRenderers={{
+                hours: renderTimeViewClock,
+                minutes: renderTimeViewClock,
+                seconds: renderTimeViewClock,
+              }}
+              onChange={(newDate) => {
+                console.log(newDate)
+                setFormFields(prevState => ({...prevState, pickupBeforeDate: newDate}));
+              }}
+            />
+          </DemoContainer>
+      </LocalizationProvider>
+        <DialogTitle sx={{
+            fontSize: 20,
+          }}>
+        Food detail:
+      </DialogTitle>
         <Stack>
-              <LocalizationProvider dateAdapter={AdapterDayjs}>
+              <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
                     label="Best Before Date"
-                    format="M/D/YYYY"
-                    value={formFields.date}
+                    value={formFields.bestBeforeDate}
+                    minDate={new Date()}
                     onChange={(newDate) => {
                       setFormFields(prevState => ({...prevState, bestBeforeDate: newDate}));
                     }}
@@ -126,8 +143,6 @@ const AddFoodDialog = (props) => {
                 </DemoContainer>
               </LocalizationProvider>
         </Stack>
-        <TextField label="address" variant="standard" type="text" onChange={(event) => updateFormField(event, 'address')} />
-        {/* <TextField label="Description" variant="standard" value={formFields.description} onChange={(event) => updateFormField(event, 'description')} /> */}
         <TextField
           id="outlined-multiline-static"
           label="Description"
@@ -136,7 +151,16 @@ const AddFoodDialog = (props) => {
           value={formFields.description}
           onChange={(event) => updateFormField(event, 'description')} 
         />
+        <Stack direction="row" spacing={2}>
+          {(isEdit && !formFields.fileName) && <Avatar alt="food image" src={formFields.imageUrl} />}
+          <Button variant="outlined" component="label" color="secondary">
+            Upload Image
+            <input type="file" hidden onInput={(event) => { setFileData(event.target) }} />
+          </Button>
+          <Typography>{formFields.fileName}</Typography>
+        </Stack>
       </DialogContent>
+      
       <DialogActions>
         {isSubmitting ?
           <Button color="secondary" variant="contained" disabled={true}>
