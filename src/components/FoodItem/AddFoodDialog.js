@@ -33,8 +33,20 @@ const AddFoodDialog = (props) => {
   const { authUser } = useAuth();
   const [formFields, setFormFields] = useState(isEdit ? props.edit : DEFAULT_FORM_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [location, setLocation] = useState({
+    lat: 0,
+    lon: 0
+  });
+
+  const parseLocation = position => {
+    setLocation({
+      lat: position.coords.latitude,
+      lon: position.coords.longitude
+    });
+  };
 
   useEffect(() => {
+    navigator.geolocation.getCurrentPosition(parseLocation);
     if (props.showDialog) {
       setFormFields(isEdit ? props.edit : DEFAULT_FORM_STATE);
     }
@@ -76,7 +88,7 @@ const AddFoodDialog = (props) => {
         // Store image into Storage
         const bucket = await uploadImage(formFields.file, authUser.uid);
         //Store data into Firestore
-        await addFood(authUser.uid, formFields.bestBeforeDate, formFields.pickupBeforeDate, formFields.description,formFields.address, formFields.title, bucket);
+        await addFood(authUser.uid, formFields.bestBeforeDate, formFields.pickupBeforeDate, formFields.description,formFields.address, formFields.title, bucket, location);
       }
       props.onSuccess(isEdit ? FOOD_IMAGE_ENUM.edit : FOOD_IMAGE_ENUM.add);
     } catch (error) {

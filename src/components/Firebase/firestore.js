@@ -4,9 +4,9 @@ import { getDownloadURL } from './storage';
 
 const FOOD_COLLECTION = 'foods';
 
-export function addFood(uid,bestBeforeDate,pickupBeforeDate,description,address,title,imageBucket){
+export function addFood(uid,bestBeforeDate,pickupBeforeDate,description,address,title,imageBucket, location){
     const createDate = new Date();
-    addDoc(collection(db, FOOD_COLLECTION),{uid,bestBeforeDate,pickupBeforeDate, createDate, description,address,title,imageBucket});
+    addDoc(collection(db, FOOD_COLLECTION),{uid,bestBeforeDate,pickupBeforeDate, createDate, description,address,title,imageBucket, location});
 }
 
 
