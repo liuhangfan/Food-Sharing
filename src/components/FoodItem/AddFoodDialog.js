@@ -130,7 +130,6 @@ const AddFoodDialog = (props) => {
                 seconds: renderTimeViewClock,
               }}
               onChange={(newDate) => {
-                console.log(newDate)
                 setFormFields(prevState => ({...prevState, pickupBeforeDate: newDate}));
               }}
             />
