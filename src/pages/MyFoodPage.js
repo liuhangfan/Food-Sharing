@@ -5,7 +5,7 @@ import { Alert, Button, CircularProgress, Container, Dialog, DialogContent, Dial
 import AddIcon from '@mui/icons-material/Add';
 import { useState, useEffect } from 'react';
 import AddFoodDialog from "../components/FoodItem/AddFoodDialog";
-import { getFoods, getFoodsByUser } from "../components/Firebase/firestore";
+import { getFoods } from "../components/Firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import * as ROUTES from '../constants/routes.js';
 import Card from '@mui/material/Card';
@@ -64,34 +64,6 @@ const SUCCESS_MAP = {
         return () => unsubscribe();
         }
     }, [authUser])
-
-    // useEffect(async () => {
-    //   if(authUser){
-    //     const fetchFoods = async () => {
-    //       try {
-    //         const fetchedFoods = await getFoodsByUser("tybzTgbrJBMcXH7NtVVQ8Hyyxrj1");
-    //         setFoods(fetchedFoods);
-    //       } catch (error) {
-    //         console.error("Error fetching foods:", error);
-    //       }
-    //     };
-    
-    //     fetchFoods();
-    //   }
-    // },[authUser])
-
-    // useEffect(() => {
-    //   const fetchFoods = async () => {
-    //     try {
-    //       const fetchedFoods = await getFoodsByUser("tybzTgbrJBMcXH7NtVVQ8Hyyxrj1");
-    //       setFoods(fetchedFoods);
-    //     } catch (error) {
-    //       console.error("Error fetching foods:", error);
-    //     }
-    //   };
-  
-    //   fetchFoods();
-    // }, []); 
 
       // Sets appropriate snackbar message on whether @isSuccess and updates shown receipts if necessary
     const onResult = async (receiptEnum, isSuccess) => {

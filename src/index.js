@@ -11,7 +11,7 @@ import Navbar from './components/Navbar/Navbar';
 import SignInPageFB from './pages/SignInPageFB';
 import {AuthUserProvider} from './components/Firebase/auth';
 import MyFoodPage from './pages/MyFoodPage';
-
+import AllFoodsPage from './pages/AllFoodsPage';
 const AppBase = () => (
     <Routes>
     <Route
@@ -40,6 +40,13 @@ const AppBase = () => (
     />
     <Route
       path={ROUTES.FOODS}
+      element={
+        <React.Fragment>
+           <Navbar />
+           <AllFoodsPage />
+           <Footer />
+        </React.Fragment>
+       }
     />
     <Route
       path={ROUTES.FOOD_DETAIL}
