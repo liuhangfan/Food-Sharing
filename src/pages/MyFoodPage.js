@@ -12,6 +12,7 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
+import { TextField } from '@mui/material';
 
 const ADD_SUCCESS = "Image was successfully added!";
 const ADD_ERROR = "Image was not successfully added!";
@@ -105,11 +106,8 @@ const SUCCESS_MAP = {
         onResult(FOOD_IMAGE_ENUM.delete, isSucceed);
       }
 
-
-
       return (
         <div>
-
         <Container>
             <Snackbar open={showSuccessSnackbar} autoHideDuration={1500} onClose={() => setSuccessSnackbar(false)}
                     anchorOrigin={{ horizontal: 'center', vertical: 'top' }}>

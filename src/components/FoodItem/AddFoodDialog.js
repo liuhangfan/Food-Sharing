@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Avatar, Button, Dialog, DialogActions, DialogContent, Stack, TextField, Typography } from '@mui/material';
+import React, { useState, useEffect, useRef } from 'react';
+import { Avatar, Button, Dialog, DialogActions, DialogContent, Stack, TextField, Typography, Autocomplete } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -8,11 +8,13 @@ import { replaceImage, uploadImage } from '../Firebase/storage'; // Adjust the i
 import { FOOD_IMAGE_ENUM } from './foodImageEnum';
 import { DemoContainer } from '@mui/x-date-pickers/internals/demo';
 import { addFood} from '../Firebase/firestore';
-import dayjs from 'dayjs';
 import DialogTitle from '@mui/material/DialogTitle';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { DateTimePicker } from '@mui/x-date-pickers/DateTimePicker';
 import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
+import { usePlacesWidget } from "react-google-autocomplete";
+import AddressAutoComplete from '../GoogleMap/AddressAutoComplete'
+import {getGeofromPlaceId} from '../GoogleMap/GeoCode'
 const DEFAULT_FILE_NAME = "No file selected";
 
 const DEFAULT_FORM_STATE = {
@@ -29,24 +31,14 @@ const DEFAULT_FORM_STATE = {
 };
 
 const AddFoodDialog = (props) => {
+  const inputRef = useRef(null);
   const isEdit = Object.keys(props.edit).length > 0;
   const { authUser } = useAuth();
+  const [placeId, setPlaceId] = useState("");
   const [formFields, setFormFields] = useState(isEdit ? props.edit : DEFAULT_FORM_STATE);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [location, setLocation] = useState({
-    lat: 0,
-    lon: 0
-  });
-
-  const parseLocation = position => {
-    setLocation({
-      lat: position.coords.latitude,
-      lon: position.coords.longitude
-    });
-  };
 
   useEffect(() => {
-    navigator.geolocation.getCurrentPosition(parseLocation);
     if (props.showDialog) {
       setFormFields(isEdit ? props.edit : DEFAULT_FORM_STATE);
     }
@@ -74,8 +66,17 @@ const AddFoodDialog = (props) => {
   const handleSubmit = async () => {
     setIsSubmitting(true);
 
+    const geo = await getGeofromPlaceId(placeId);
+    console.log(geo)
+    console.log(geo.lat)
+    console.log(geo.lng)
+    const location = {
+      lat: geo.lat,
+      lon: geo.lng
+    }
+    console.log(location)
+
     try {
-      
       if (isEdit) {
         // Check whether image was changed - fileName will be not null
         if (formFields.fileName) {
@@ -95,7 +96,6 @@ const AddFoodDialog = (props) => {
       console.log(error)
       props.onError(isEdit ? FOOD_IMAGE_ENUM.edit : FOOD_IMAGE_ENUM.add);
     }
-
     // Clear all form data
     closeDialog();
   };
@@ -108,6 +108,7 @@ const AddFoodDialog = (props) => {
       fullWidth={true}
       component="form"
     >
+      
       <DialogTitle>
         {isEdit ? "EDIT" : "ADD"} Sharing Food:
       </DialogTitle>
@@ -118,7 +119,14 @@ const AddFoodDialog = (props) => {
           padding: '0.6em',
         }}>
         <TextField label="Title" variant="standard" type="text" onChange={(event) => updateFormField(event, 'title')} />
-        <TextField label="Address" variant="standard" type="text" onChange={(event) => updateFormField(event, 'address')} />
+        {/* <TextField label="Address" variant="standard" type="text" onChange={(event) => updateFormField(event, 'address')} /> */}
+        <AddressAutoComplete
+          label="Pickup Address"
+          onChange={(data) => {
+            setFormFields(prevState => ({...prevState, address: data.description}));
+            setPlaceId(data.place_id);
+          }}
+        />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DemoContainer components={['DateTimePicker']}>
             <DateTimePicker
