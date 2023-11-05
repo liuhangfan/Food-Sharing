@@ -73,7 +73,7 @@ const ViewFoodDialog = (props) => {
           padding: '0.6em',
         }}>
         
-        <TextField id="standard-read-only-input" label="Address" variant="standard" defaultValue={props.food.address} InputProps={{ readOnly: true}} />
+        <TextField id="standard-read-only-input" label="Address" variant="standard" defaultValue={props.food.address.description} InputProps={{ readOnly: true}} />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DemoContainer components={['DateTimePicker']}>
             <DateTimePicker

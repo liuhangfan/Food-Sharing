@@ -1,4 +1,4 @@
-import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, startAfter, endAt, startAt, query, setDoc, limit, where } from 'firebase/firestore'; 
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, onSnapshot, orderBy, startAfter, endAt, startAt, query, setDoc, limit, where } from 'firebase/firestore';
 import { db } from './firebase';
 import { getDownloadURL } from './storage';
 import { geohashForLocation, geohashQueryBounds, distanceBetween } from 'geofire-common';
@@ -6,31 +6,45 @@ const FOOD_COLLECTION = 'foods';
 
 
 
-export function addFood(uid,bestBeforeDate,pickupBeforeDate,description,address,title,imageBucket, location){
-    const createDate = new Date();
-    const geoHash = geohashForLocation([location["lat"], location["lon"]]);
-    addDoc(collection(db, FOOD_COLLECTION),{uid,bestBeforeDate,pickupBeforeDate, createDate, description,address,title,imageBucket, location, geoHash});
+export function addFood(uid, bestBeforeDate, pickupBeforeDate, description, address, secondaryAddress, title, imageBucket, geometry) {
+  const createDate = new Date();
+  const geoHash = geohashForLocation([geometry.latitude, geometry.longitude]);
+  geometry.geoHash = geoHash;
+  const modifyDate = createDate;
+  addDoc(collection(db, FOOD_COLLECTION), { uid, bestBeforeDate, pickupBeforeDate, createDate, modifyDate, description, address, secondaryAddress, title, imageBucket, geometry });
 }
 
+// Updates receipt with @docId with given information.
+export function updateFood(docId, uid, bestBeforeDate, pickupBeforeDate, description, address, secondaryAddress, title, imageBucket, geometry, createDate) {
+  const modifyDate = new Date();
+  const geoHash = geohashForLocation([geometry.latitude, geometry.longitude]);
+  geometry.geoHash = geoHash;
+  setDoc(doc(db, FOOD_COLLECTION, docId), { uid, bestBeforeDate, pickupBeforeDate, createDate, modifyDate, description, address, secondaryAddress, title, imageBucket, geometry });
+}
+
+// Deletes receipt with given @id.
+export function deleteFood(id) {
+  deleteDoc(doc(db, FOOD_COLLECTION, id));
+}
 
 export async function getFoods(uid, setFoods, setIsLoadingFoods) {
-    const foodQuery = query(collection(db, FOOD_COLLECTION), where("uid", "==", uid), orderBy("createDate", "desc"));
-  
-    const unsubscribe = onSnapshot(foodQuery, async (snapshot) => {
-      let allFoods = [];
-      for (const documentSnapshot of snapshot.docs) {
-        const food = documentSnapshot.data();
-        allFoods.push({
-          ...food, 
-          createDate: food['createDate'].toDate(), 
-          id: documentSnapshot.id,
-          imageUrl: await getDownloadURL(food['imageBucket']),
-        });
-      }
-      setFoods(allFoods);
-      setIsLoadingFoods(false);
-    })
-    return unsubscribe;
+  const foodQuery = query(collection(db, FOOD_COLLECTION), where("uid", "==", uid), orderBy("createDate", "desc"));
+
+  const unsubscribe = onSnapshot(foodQuery, async (snapshot) => {
+    let allFoods = [];
+    for (const documentSnapshot of snapshot.docs) {
+      const food = documentSnapshot.data();
+      allFoods.push({
+        ...food,
+        createDate: food['createDate'].toDate(),
+        id: documentSnapshot.id,
+        imageUrl: await getDownloadURL(food['imageBucket']),
+      });
+    }
+    setFoods(allFoods);
+    setIsLoadingFoods(false);
+  })
+  return unsubscribe;
 }
 
 export async function getAllFoods(setFoods, setIsLoadingFoods) {
@@ -41,8 +55,8 @@ export async function getAllFoods(setFoods, setIsLoadingFoods) {
     for (const documentSnapshot of snapshot.docs) {
       const food = documentSnapshot.data();
       allFoods.push({
-        ...food, 
-        createDate: food['createDate'].toDate(), 
+        ...food,
+        createDate: food['createDate'].toDate(),
         id: documentSnapshot.id,
         imageUrl: await getDownloadURL(food['imageBucket']),
       });
@@ -55,16 +69,16 @@ export async function getAllFoods(setFoods, setIsLoadingFoods) {
 
 function dynamicSort(property) {
   var sortOrder = 1;
-  if(property[0] === "-") {
-      sortOrder = -1;
-      property = property.substr(1);
+  if (property[0] === "-") {
+    sortOrder = -1;
+    property = property.substr(1);
   }
-  return function (a,b) {
-      /* next line works with strings and numbers, 
-       * and you may want to customize it to your needs
-       */
-      var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
-      return result * sortOrder;
+  return function (a, b) {
+    /* next line works with strings and numbers, 
+     * and you may want to customize it to your needs
+     */
+    var result = (a[property] < b[property]) ? -1 : (a[property] > b[property]) ? 1 : 0;
+    return result * sortOrder;
   }
 }
 
@@ -79,7 +93,7 @@ export async function getFoodsByGeo(setFoods, setIsLoadingFoods, radiusInM, cent
   for (const bound of bounds) {
     const q = query(
       collection(db, FOOD_COLLECTION),
-      orderBy("geoHash"),
+      orderBy("geometry.geoHash"),
       orderBy("createDate", "desc"),
       startAt(bound[0]),
       endAt(bound[1])
@@ -100,19 +114,19 @@ export async function getFoodsByGeo(setFoods, setIsLoadingFoods, radiusInM, cent
       // const distanceInKm = geofire.distanceBetween([lat, lng], center);
       // const distanceInM = distanceInKm * 1000;
       // if (distanceInM <= radiusInM) {
-        matchingDocs.push(doc);
+      matchingDocs.push(doc);
       //}
     }
   }
   let allFoods = [];
 
-  for (const doc of matchingDocs){
+  for (const doc of matchingDocs) {
     console.log(doc);
     const food = doc.data();
-    const distance = distanceBetween([food["location"]["lat"], food["location"]["lon"]], center) * 0.621371 // in miles
+    const distance = distanceBetween([food["geometry"]["latitude"], food["geometry"]["longitude"]], center) * 0.621371 // in miles
     allFoods.push({
-      ...food, 
-      createDate: food['createDate'].toDate(), 
+      ...food,
+      createDate: food['createDate'].toDate(),
       id: doc.id,
       distance: distance.toFixed(2),
       imageUrl: await getDownloadURL(food['imageBucket']),

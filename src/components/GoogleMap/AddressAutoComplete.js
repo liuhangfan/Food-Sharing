@@ -27,8 +27,8 @@ function loadScript(src, position, id) {
 const autocompleteService = { current: null };
 
 const AddressAutoComplete = (props) => {
-  const [value, setValue] = React.useState(null);
-  const [inputValue, setInputValue] = React.useState('');
+  const [value, setValue] = React.useState(props.defaultValue);
+  const [inputValue, setInputValue] = React.useState();
   const [options, setOptions] = React.useState([]);
   const loaded = React.useRef(false);
 

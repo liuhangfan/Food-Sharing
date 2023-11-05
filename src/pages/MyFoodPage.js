@@ -5,7 +5,7 @@ import { Alert, Button, CircularProgress, Container, Dialog, DialogContent, Dial
 import AddIcon from '@mui/icons-material/Add';
 import { useState, useEffect } from 'react';
 import AddFoodDialog from "../components/FoodItem/AddFoodDialog";
-import { getFoods } from "../components/Firebase/firestore";
+import { getFoods, deleteFood } from "../components/Firebase/firestore";
 import { useNavigate } from "react-router-dom";
 import * as ROUTES from '../constants/routes.js';
 import Card from '@mui/material/Card';
@@ -67,8 +67,8 @@ const SUCCESS_MAP = {
     }, [authUser])
 
       // Sets appropriate snackbar message on whether @isSuccess and updates shown receipts if necessary
-    const onResult = async (receiptEnum, isSuccess) => {
-        setSnackbarMessage(isSuccess ? SUCCESS_MAP[receiptEnum] : ERROR_MAP[receiptEnum]);
+    const onResult = async (foodEnum, isSuccess) => {
+        setSnackbarMessage(isSuccess ? SUCCESS_MAP[foodEnum] : ERROR_MAP[foodEnum]);
         isSuccess ? setSuccessSnackbar(true) : setErrorSnackbar(true);
         setAction(FOOD_IMAGE_ENUM.none);
     }
@@ -78,9 +78,9 @@ const SUCCESS_MAP = {
         setUpdateFoods({});
       }
     
-      const onUpdate = (foodImages) => {
+      const onUpdate = (food) => {
         setAction(FOOD_IMAGE_ENUM.edit);
-        setUpdateFoods(foodImages);
+        setUpdateFoods(food);
       }
     
       const onClickDelete = (id, imageBucket) => {
@@ -98,6 +98,7 @@ const SUCCESS_MAP = {
       const onDelete = async () => {
         let isSucceed = true;
         try {
+          await deleteFood(deleteFoodId);
           await deleteImage(deleteFoodImageBucket);
         } catch (error) {
           isSucceed = false;
@@ -125,14 +126,6 @@ const SUCCESS_MAP = {
                 <AddIcon />
             </IconButton>
             </Stack>
-            {/* { receipts.map((receipt) => (
-            <div key={receipt.id}>
-                <Divider light />
-                <ReceiptRow receipt={receipt}
-                            onEdit={() => onUpdate(receipt)}
-                            onDelete={() => onClickDelete(receipt.id, receipt.imageBucket)} />
-            </div>)
-            )} */}
             <Grid container spacing={2}>
                 {foods.map((food) => (
                   <Grid item key={food.id} xs={12} sm={6} md={4}>
@@ -172,6 +165,10 @@ const SUCCESS_MAP = {
                             overflowY: 'auto',
                           }} />
                       </CardContent>
+                      <CardActions>
+                        <Button size="small" onClick={()=>{onUpdate(food)}} >edit</Button>
+                        <Button size="small" onClick={()=>{onClickDelete(food.id, food.imageBucket)}}>delete</Button>
+                      </CardActions>
                     </Card>
                   </Grid>
                 ))}
@@ -179,14 +176,14 @@ const SUCCESS_MAP = {
         </Container>
         <AddFoodDialog edit={updateFoods}
                         showDialog={action === FOOD_IMAGE_ENUM.add || action === FOOD_IMAGE_ENUM.edit}
-                        onError={(receiptEnum) => onResult(receiptEnum, false)}
-                        onSuccess={(receiptEnum) => onResult(receiptEnum, true)}
+                        onError={(foodEnum) => onResult(foodEnum, false)}
+                        onSuccess={(foodEnum) => onResult(foodEnum, true)}
                         onCloseDialog={() => setAction(FOOD_IMAGE_ENUM.none)}>
         </AddFoodDialog>
-        {/* <Dialog open={action === RECEIPTS_ENUM.delete} onClose={resetDelete}>
-            <Typography variant="h4" className={styles.title}>DELETE EXPENSE</Typography>
+        <Dialog open={action === FOOD_IMAGE_ENUM.delete} onClose={resetDelete}>
+            <Typography variant="h4">DELETE FOOD</Typography>
             <DialogContent>
-                <Alert severity="error">This will permanently delete your receipt!</Alert>
+                <Alert severity="error">This will permanently delete your food!</Alert>
             </DialogContent>
             <DialogActions sx={{ padding: '0 24px 24px'}}>
             <Button color="secondary" variant="outlined" onClick={resetDelete}>
@@ -196,7 +193,7 @@ const SUCCESS_MAP = {
                 Delete
             </Button>
             </DialogActions>
-        </Dialog> */}
+        </Dialog>
         </div>
     )
   }
