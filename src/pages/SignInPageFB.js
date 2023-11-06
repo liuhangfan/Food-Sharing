@@ -9,33 +9,44 @@ import { auth } from '../components/Firebase/firebase';
 import {Typography, Button } from '@material-tailwind/react';
 import { useNavigate } from "react-router-dom";
 import * as ROUTES from '../constants/routes.js';
+import {isSignInWithEmailLink} from 'firebase/auth';
+import { useLocation } from 'react-router-dom';
+
 
 const REDIRECT_PAGE = ROUTES.ACCOUNT;
 
-// Configure FirebaseUI.
-const uiConfig = {
-  signInFlow: 'popup', // popup signin flow rather than redirect flow
-  signInSuccessUrl: REDIRECT_PAGE,
-  signInOptions: [
-    EmailAuthProvider.PROVIDER_ID,
-    GoogleAuthProvider.PROVIDER_ID
-  ],
-};
+
+const isEmailLinkLogin = (props) => {
+  const searchParams = new URLSearchParams(props.search);
+  const oobCode = searchParams.get('oobCode');
+  const apiKey = searchParams.get('apiKey');
+  const mode = searchParams.get('mode');
+  return (oobCode && apiKey && mode === "signIn");
+}
 
 const SignInPageFB = () => {
   const { authUser, isLoading } = useAuth();
-//   const router = useRouter();
-  const [login, setLogin] = useState(false);
+  const [login, setLogin] = useState(isEmailLinkLogin(useLocation())? true: false);
   let navigate = useNavigate();
-
   // Redirect if finished loading and there's an existing user (user is logged in)
   useEffect(() => {
     if (!isLoading && authUser) {
         navigate(REDIRECT_PAGE);
     }
   }, [authUser, isLoading])
-   
 
+  const uiConfig = {
+    signInFlow: isSignInWithEmailLink(authUser, window.location.href) ? 'redirect' : 'popup',
+    //firebase.auth().isSignInWithEmailLink(window.location.href) ? 'redirect' : 'popup',
+    signInSuccessUrl: REDIRECT_PAGE,
+    signInOptions: [
+      {
+        provider: EmailAuthProvider.PROVIDER_ID,
+        signInMethod: EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD
+      },
+      GoogleAuthProvider.PROVIDER_ID
+    ],
+  };
   return (
     (isLoading || (!isLoading && !!authUser)) ? 
     <CircularProgress color="inherit" sx={{ marginLeft: '50%', marginTop: '25%' }}/>

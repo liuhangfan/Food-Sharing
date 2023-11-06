@@ -98,7 +98,6 @@ const AddFoodDialog = (props) => {
     // Clear all form data
     closeDialog();
   };
-  console.log("form:", formFields)
   return (
     <Dialog
       onClose={closeDialog}

@@ -34,9 +34,8 @@ const SUCCESS_MAP = {
   }
 
 
-  const MyFoodPage =() => {
+const MyFoodPage =() => {
     const { authUser, isLoading } = useAuth();
-    // const router = useRouter();
     const [action, setAction] = useState(FOOD_IMAGE_ENUM.none);
 
       // State involved in loading, setting, deleting, and updating receipts
@@ -58,12 +57,16 @@ const SUCCESS_MAP = {
         }
     }, [authUser, isLoading])
 
-    // //Get foods once user is logged in
-    useEffect(async () => {
-        if (authUser) {
-        const unsubscribe = await getFoods(authUser.uid, setFoods, setIsLoadingFoods);
-        return () => unsubscribe();
-        }
+    const listenFoods = async () => {
+      if (authUser) {
+        //await getFoods(authUser.uid, setFoods, setIsLoadingFoods);
+       const unsubscribe = await getFoods(authUser.uid, setFoods, setIsLoadingFoods);
+       return () => unsubscribe();
+      }
+    }
+    // Get foods once user is logged in
+    useEffect(() => {
+      listenFoods();
     }, [authUser])
 
       // Sets appropriate snackbar message on whether @isSuccess and updates shown receipts if necessary

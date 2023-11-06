@@ -64,6 +64,7 @@ const AppBase = () => (
       path={ROUTES.LOG_IN}
       element={
         <React.Fragment>
+          <Navbar />
            <SignInPageFB />
            <Footer />
         </React.Fragment>
