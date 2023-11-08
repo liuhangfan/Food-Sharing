@@ -73,11 +73,11 @@ const ViewFoodDialog = (props) => {
           padding: '0.6em',
         }}>
         
-        <TextField id="standard-read-only-input" label="Address" variant="standard" defaultValue={props.food.address.description} InputProps={{ readOnly: true}} />
+        <TextField id="standard-read-only-input" label="Pick-Up Address" variant="standard" defaultValue={props.food.address.description} InputProps={{ readOnly: true}} />
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DemoContainer components={['DateTimePicker']}>
             <DateTimePicker
-              label="Pickup Before Date"
+              label="Available Until Date"
               viewRenderers={{
                 hours: renderTimeViewClock,
                 minutes: renderTimeViewClock,
@@ -87,6 +87,7 @@ const ViewFoodDialog = (props) => {
               readOnly={true}
             />
           </DemoContainer>
+          {props.food.address.secondaryAddress && <TextField id="standard-read-only-input" label="Apt, suite, etc. (optional)" variant="standard" defaultValue={props.food.address.secondaryAddress} InputProps={{ readOnly: true}} />}
       </LocalizationProvider>
         <DialogTitle sx={{
             fontSize: 20,
@@ -97,7 +98,7 @@ const ViewFoodDialog = (props) => {
               <LocalizationProvider dateAdapter={AdapterDateFns}>
                 <DemoContainer components={['DatePicker']}>
                   <DatePicker
-                    label="Best Before Date"
+                    label="Food Expiry Date"
                     defaultValue={new Date(props.food.bestBeforeDate['seconds']*1000)}
                     readOnly={true}
                   />
@@ -112,14 +113,6 @@ const ViewFoodDialog = (props) => {
           defaultValue={props.food.description}
           InputProps={{ readOnly: true}}
         />
-        {/* <Stack direction="row" spacing={2}>
-          {(isEdit && !formFields.fileName) && <Avatar alt="food image" src={formFields.imageUrl} />}
-          <Button variant="outlined" component="label" color="secondary">
-            Upload Image
-            <input type="file" hidden onInput={(event) => { setFileData(event.target) }} />
-          </Button>
-          <Typography>{formFields.fileName}</Typography>
-        </Stack> */}
       </DialogContent>
       {showContact && <Alert severity={showContactSuccess} onClose={() => {
                                             setShowContactAlert(null)

@@ -1,7 +1,7 @@
 import { FOOD_IMAGE_ENUM } from "../components/FoodItem/foodImageEnum";
 import { deleteImage } from "../components/Firebase/storage";
 import { useAuth } from "../components/Firebase/auth";
-import { Alert, Button, CircularProgress, Container, Dialog, DialogContent, DialogActions, Divider, Grid, TextareaAutosize, IconButton, Snackbar, Stack, Typography } from '@mui/material';
+import { Alert, Button, CircularProgress, Container, Dialog, DialogContent, DialogActions, Divider, Grid, TextareaAutosize, IconButton, Snackbar, Stack, Typography, Autocomplete, TextField } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import { useState, useEffect } from 'react';
 import ViewFoodDialog from "../components/FoodItem/ViewFoodDialog";
@@ -12,63 +12,65 @@ import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-
+import { useLocation } from "../components/Geometry/location";
+import TagFilter from "../components/Filter/TagFilter";
+import DistanceFilter from "../components/Filter/DistanceFilter";
 
 const AllFoodsPage =() => {
-
+  const {authUser , isLoading} = useAuth();
+  const {latitude, longitude} = useLocation()
   const [foods, setFoods] = useState([]);
   const [isLoadingFoods, setIsLoadingFoods] = useState(true);
   const [currentFood, setCurrentFood] = useState(null);
-  
-  const [location, setLocation] = useState({
-    lat: 0,
-    lon: 0
-  });
-  
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lon: position.coords.longitude
-          });
-        },
-        (error) => {
-          setLocation({
-            lat: 0,
-            lon: 0
-          });
-          console.error('Error getting location:', error);
-        }
-      );
-    } else {
-      console.error('Geolocation is not supported by your browser.');
-      setLocation({
-        lat: 0,
-        lon: 0
-      });
-    }
-  }, []);
+  const [isFetch, setIsFetch] = useState(false);
+  const [tags, setTags] = useState([]);
+  const [miles, setMiles] = useState(20);
+  // const [location, setLocation] = useState(null);
 
+  let navigate = useNavigate();
+  // Listen for changes to loading and authUser, redirect if needed
+  useEffect(() => {
+      if (!isLoading && !authUser) {
+      navigate(ROUTES.LOG_IN);
+      }
+  }, [authUser, isLoading])
+  
   //Get foods once user is logged in
   useEffect(() => {
-      getFoodsByGeo(setFoods, setIsLoadingFoods, 50 * 1000, [location["lat"],location["lon"]]);
-  }, [location])
+    console.log(miles);
+
+      if(isLoadingFoods && !isFetch){
+        setIsFetch(true);
+        console.log(latitude, longitude)
+        getFoodsByGeo(setFoods, setIsLoadingFoods, miles * 1609.34, [latitude,longitude], tags);
+        setIsFetch(false);
+      }
+  }, [tags, miles])
 
     return (
       <div>
-
       <Container>
-          <Stack direction="row" sx={{ paddingTop: "1.5em" }}>
-          <Typography variant="h4" sx={{ lineHeight: 2, paddingRight: "0.5em" }}>
-              All Sharing FOODS:
+          <Typography variant="h4" sx={{ lineHeight: 2, paddingRight: "1em" }}>
+                  Sharing FOODS:
           </Typography>
-          </Stack>
-          <Grid container spacing={2}>
+          <Divider></Divider>
+          <TagFilter handleChange={(tags)=>{
+            setTags(tags);
+            setIsLoadingFoods(true);
+            console.log(tags);
+          }} />
+          <DistanceFilter value={miles} handleChange={(miles) => {
+            setMiles(miles);
+            setIsLoadingFoods(true);
+          }} />
+          <Divider sx={{paddingBottom: "1em"}}></Divider>
+          {isLoadingFoods ? (
+            <CircularProgress color="inherit" sx={{ marginLeft: '50%', marginTop: '5%' }} />
+          ) : (
+            <Grid sx={{paddingTop:"1em"}}container spacing={2}>
               {foods.map((food) => (
                 <Grid item key={food.id} xs={12} sm={6} md={4}>
-                  <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+                  <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%'}}>
                   <div style={{
                         paddingTop: '75%', // 4:3 aspect ratio (adjust as needed)
                         position: 'relative',
@@ -114,6 +116,7 @@ const AllFoodsPage =() => {
                 </Grid>
               ))}
             </Grid>
+          )}
       </Container>
       <ViewFoodDialog food={currentFood}
                       showDialog={currentFood != null}

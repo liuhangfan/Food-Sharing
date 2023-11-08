@@ -6,20 +6,20 @@ const FOOD_COLLECTION = 'foods';
 
 
 
-export function addFood(uid, bestBeforeDate, pickupBeforeDate, description, address, secondaryAddress, title, imageBucket, geometry) {
+export function addFood(uid, bestBeforeDate, pickupBeforeDate, description, address, secondaryAddress, title, imageBucket, geometry, tags) {
   const createDate = new Date();
   const geoHash = geohashForLocation([geometry.latitude, geometry.longitude]);
   geometry.geoHash = geoHash;
   const modifyDate = createDate;
-  addDoc(collection(db, FOOD_COLLECTION), { uid, bestBeforeDate, pickupBeforeDate, createDate, modifyDate, description, address, secondaryAddress, title, imageBucket, geometry });
+  addDoc(collection(db, FOOD_COLLECTION), { uid, bestBeforeDate, pickupBeforeDate, createDate, modifyDate, description, address, secondaryAddress, title, imageBucket, geometry, tags });
 }
 
 // Updates receipt with @docId with given information.
-export function updateFood(docId, uid, bestBeforeDate, pickupBeforeDate, description, address, secondaryAddress, title, imageBucket, geometry, createDate) {
+export function updateFood(docId, uid, bestBeforeDate, pickupBeforeDate, description, address, secondaryAddress, title, imageBucket, geometry, createDate, tags) {
   const modifyDate = new Date();
   const geoHash = geohashForLocation([geometry.latitude, geometry.longitude]);
   geometry.geoHash = geoHash;
-  setDoc(doc(db, FOOD_COLLECTION, docId), { uid, bestBeforeDate, pickupBeforeDate, createDate, modifyDate, description, address, secondaryAddress, title, imageBucket, geometry });
+  setDoc(doc(db, FOOD_COLLECTION, docId), { uid, bestBeforeDate, pickupBeforeDate, createDate, modifyDate, description, address, secondaryAddress, title, imageBucket, geometry, tags});
 }
 
 // Deletes receipt with given @id.
@@ -82,7 +82,8 @@ function dynamicSort(property) {
   }
 }
 
-export async function getFoodsByGeo(setFoods, setIsLoadingFoods, radiusInM, center) {
+
+export async function getFoodsByGeo(setFoods, setIsLoadingFoods, radiusInM, center, tags) {
   const bounds = geohashQueryBounds(
     center,
     radiusInM
@@ -91,13 +92,18 @@ export async function getFoodsByGeo(setFoods, setIsLoadingFoods, radiusInM, cent
   const promises = [];
 
   for (const bound of bounds) {
-    const q = query(
-      collection(db, FOOD_COLLECTION),
-      orderBy("geometry.geoHash"),
-      orderBy("createDate", "desc"),
-      startAt(bound[0]),
-      endAt(bound[1])
+    let q = query(
+      collection(db, FOOD_COLLECTION)
     );
+    if(tags.length > 0){
+      q = query(q, where("tags", "array-contains-any", tags))
+    }
+    q = query(q, 
+        orderBy("geometry.geoHash"),
+        orderBy("createDate", "desc"),
+        startAt(bound[0]),
+        endAt(bound[1])
+    )
     promises.push(getDocs(q));
   }
 

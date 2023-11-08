@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Avatar, Button, Dialog, DialogActions, DialogContent, Stack, TextField, Typography } from '@mui/material';
+import { Avatar, Button, Dialog, DialogActions, DialogContent, Stack, TextField, Typography,Autocomplete } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -15,6 +15,8 @@ import { renderTimeViewClock } from '@mui/x-date-pickers/timeViewRenderers';
 import { usePlacesWidget } from "react-google-autocomplete";
 import AddressAutoComplete from '../GoogleMap/AddressAutoComplete'
 import { getGeofromPlaceId } from '../GoogleMap/GeoCode'
+import { FOOD_CATEGORIES_LIST } from '../../constants/categories';
+
 const DEFAULT_FILE_NAME = "No file selected";
 
 const DEFAULT_FORM_STATE = {
@@ -28,6 +30,7 @@ const DEFAULT_FORM_STATE = {
   imageUrl: "",
   description: "",
   title: "",
+  tags: []
 };
 
 const AddFoodDialog = (props) => {
@@ -75,6 +78,7 @@ const AddFoodDialog = (props) => {
         longitude: geo.lng
       };
     }
+    console.log(formFields)
     try {
       if (isEdit) {
         // Check whether image was changed - fileName will be not null
@@ -82,13 +86,13 @@ const AddFoodDialog = (props) => {
           // Store image into Storage
           await replaceImage(formFields.file, formFields.imageBucket);
         }
-        await updateFood(formFields.id, authUser.uid, formFields.bestBeforeDate, formFields.pickupBeforeDate, formFields.description, formFields.address, formFields.secondaryAddress, formFields.title, formFields.imageBucket, geometry, formFields.createDate);
+        await updateFood(formFields.id, authUser.uid, formFields.bestBeforeDate, formFields.pickupBeforeDate, formFields.description, formFields.address, formFields.secondaryAddress, formFields.title, formFields.imageBucket, geometry, formFields.createDate, formFields.tags);
       } else {
         // Adding
         // Store image into Storage
         const bucket = await uploadImage(formFields.file, authUser.uid);
         //Store data into Firestore
-        await addFood(authUser.uid, formFields.bestBeforeDate, formFields.pickupBeforeDate, formFields.description, formFields.address, formFields.secondaryAddress, formFields.title, bucket, geometry);
+        await addFood(authUser.uid, formFields.bestBeforeDate, formFields.pickupBeforeDate, formFields.description, formFields.address, formFields.secondaryAddress, formFields.title, bucket, geometry, formFields.tags);
       }
       props.onSuccess(isEdit ? FOOD_IMAGE_ENUM.edit : FOOD_IMAGE_ENUM.add);
     } catch (error) {
@@ -116,9 +120,9 @@ const AddFoodDialog = (props) => {
         gap: '0.8em',
         padding: '0.6em',
       }}>
-        <TextField id="outlined-basic" label="Title" variant="outlined" type="text" value={formFields.title} onChange={(event) => updateFormField(event, 'title')} />
+        <TextField id="outlined-basic" label="Title" placeholder="A brief, attention-grabbing description of the food" variant="outlined" type="text" value={formFields.title} onChange={(event) => updateFormField(event, 'title')} />
         <AddressAutoComplete
-          label="Pickup Address"
+          label="Pick-Up Address"
           defaultValue={formFields.address}
           onChange={(data) => {
             if (data && data.description && data.place_id) {
@@ -131,7 +135,7 @@ const AddFoodDialog = (props) => {
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DemoContainer components={['DateTimePicker']}>
             <DateTimePicker
-              label="Pickup Before Date"
+              label="Available Until Date"
               defaultValue={isEdit && formFields.pickupBeforeDate ? new Date(formFields.pickupBeforeDate['seconds']*1000) : null}
               viewRenderers={{
                 hours: renderTimeViewClock,
@@ -149,10 +153,29 @@ const AddFoodDialog = (props) => {
         }}>
           Food detail:
         </DialogTitle>
-
+        <Autocomplete
+          multiple
+          id="tags-outlined"
+          disableCloseOnSelect
+          options={FOOD_CATEGORIES_LIST}
+          getOptionLabel={(option) => option}
+          filterSelectedOptions
+          value={formFields.tags}
+          onChange={(event, newValue) => {
+            setFormFields(prevState => ({ ...prevState, tags: newValue }))
+          }}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Select Categories"
+              placeholder="Tag"
+            />
+          )}
+      />
         <TextField
           id="outlined-multiline-static"
           label="Description"
+          placeholder='Additional details about the food (quantity, condition, preparation, etc.).'
           multiline
           rows={5}
           value={formFields.description}
@@ -162,7 +185,7 @@ const AddFoodDialog = (props) => {
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DemoContainer components={['DatePicker']}>
             <DatePicker
-              label="Best Before Date"
+              label="Food Expiry Date"
               defaultValue={isEdit && formFields.bestBeforeDate? new Date(formFields.bestBeforeDate['seconds']*1000) : null}
               minDate={new Date()}
               onChange={(newDate) => {
@@ -187,7 +210,9 @@ const AddFoodDialog = (props) => {
           <Button color="secondary" variant="contained" disabled={true}>
             Submitting...
           </Button> :
-          <Button color="secondary" variant="contained" onClick={handleSubmit} disabled={isDisabled()}>
+          <Button color="secondary" variant="contained" onClick={handleSubmit} 
+          //disabled={isDisabled()}
+          >
             Submit
           </Button>}
       </DialogActions>

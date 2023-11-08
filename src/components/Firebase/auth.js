@@ -20,10 +20,6 @@ export default function useFirebaseAuth() {
         clear();
         return;
     }
-    // setAuthUser({
-    //     uid: user.uid,
-    //     email: user.email
-    // });
     setAuthUser(user);
     setIsLoading(false);
   }; 
