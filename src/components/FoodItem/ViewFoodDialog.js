@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Avatar, Button, Dialog, DialogActions, DialogContent, Stack, TextField, Typography, Alert } from '@mui/material';
+import { Avatar, Button, Dialog, DialogActions, DialogContent, Stack, TextField, Typography, Alert, Autocomplete } from '@mui/material';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
@@ -20,6 +20,7 @@ import CopyToClipboard from "react-copy-to-clipboard";
 import LoadingButton from '@mui/lab/LoadingButton';
 import SearchIcon from '@mui/icons-material/Search';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
+import { FOOD_CATEGORIES_LIST } from '../../constants/categories';
 const ViewFoodDialog = (props) => {
   const [showContact, setShowContactAlert] = useState(null);
   const [showContactSuccess, setShowContactSuccessAlert] = useState("success");
@@ -50,7 +51,6 @@ const ViewFoodDialog = (props) => {
     setLoading(false);
     setRequestDisable(false);
   }
-
   return (
     <Dialog
       onClose={() => {
@@ -72,8 +72,8 @@ const ViewFoodDialog = (props) => {
           gap: '0.8em',
           padding: '0.6em',
         }}>
-        
         <TextField id="standard-read-only-input" label="Pick-Up Address" variant="standard" defaultValue={props.food.address.description} InputProps={{ readOnly: true}} />
+        {props.food.secondaryAddress && <TextField id="standard-read-only-input" label="Apt, suite, etc. (optional)" variant="standard" defaultValue={props.food.secondaryAddress} InputProps={{ readOnly: true}}/>}
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DemoContainer components={['DateTimePicker']}>
             <DateTimePicker
@@ -87,24 +87,38 @@ const ViewFoodDialog = (props) => {
               readOnly={true}
             />
           </DemoContainer>
-          {props.food.address.secondaryAddress && <TextField id="standard-read-only-input" label="Apt, suite, etc. (optional)" variant="standard" defaultValue={props.food.address.secondaryAddress} InputProps={{ readOnly: true}} />}
       </LocalizationProvider>
         <DialogTitle sx={{
             fontSize: 20,
           }}>
         Food detail:
       </DialogTitle>
-        <Stack>
-              <LocalizationProvider dateAdapter={AdapterDateFns}>
-                <DemoContainer components={['DatePicker']}>
-                  <DatePicker
-                    label="Food Expiry Date"
-                    defaultValue={new Date(props.food.bestBeforeDate['seconds']*1000)}
-                    readOnly={true}
-                  />
-                </DemoContainer>
-              </LocalizationProvider>
-        </Stack>
+        <LocalizationProvider dateAdapter={AdapterDateFns}>
+          <DemoContainer components={['DatePicker']}>
+            <DatePicker
+              label="Food Expiry Date"
+              defaultValue={new Date(props.food.bestBeforeDate['seconds']*1000)}
+              readOnly={true}
+            />
+          </DemoContainer>
+        </LocalizationProvider>
+        <Autocomplete
+          multiple
+          id="tags-outlined"
+          disableCloseOnSelect
+          disabled
+          options={FOOD_CATEGORIES_LIST}
+          getOptionLabel={(option) => option}
+          filterSelectedOptions
+          value={props.food.tags}
+          renderInput={(params) => (
+            <TextField
+              {...params}
+              label="Select Categories"
+              placeholder="Tag"
+            />
+          )}
+      />
         <TextField
           id="outlined-multiline-static"
           label="Description"
@@ -140,7 +154,6 @@ const ViewFoodDialog = (props) => {
           <span>Request Contact</span>
         </LoadingButton>
       </DialogActions>
-      
     </Dialog>
   );
 };

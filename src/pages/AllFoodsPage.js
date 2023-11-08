@@ -1,8 +1,7 @@
 import { FOOD_IMAGE_ENUM } from "../components/FoodItem/foodImageEnum";
 import { deleteImage } from "../components/Firebase/storage";
 import { useAuth } from "../components/Firebase/auth";
-import { Alert, Button, CircularProgress, Container, Dialog, DialogContent, DialogActions, Divider, Grid, TextareaAutosize, IconButton, Snackbar, Stack, Typography, Autocomplete, TextField } from '@mui/material';
-import AddIcon from '@mui/icons-material/Add';
+import { Alert, Button, CircularProgress, Container, Divider, Grid, TextareaAutosize, Typography, CardActionArea } from '@mui/material';
 import { useState, useEffect } from 'react';
 import ViewFoodDialog from "../components/FoodItem/ViewFoodDialog";
 import { getFoodsByGeo } from "../components/Firebase/firestore";
@@ -15,7 +14,6 @@ import CardMedia from '@mui/material/CardMedia';
 import { useLocation } from "../components/Geometry/location";
 import TagFilter from "../components/Filter/TagFilter";
 import DistanceFilter from "../components/Filter/DistanceFilter";
-
 const AllFoodsPage =() => {
   const {authUser , isLoading} = useAuth();
   const {latitude, longitude} = useLocation()
@@ -46,7 +44,6 @@ const AllFoodsPage =() => {
         setIsFetch(false);
       }
   }, [tags, miles])
-
     return (
       <div>
       <Container>
@@ -70,7 +67,8 @@ const AllFoodsPage =() => {
             <Grid sx={{paddingTop:"1em"}}container spacing={2}>
               {foods.map((food) => (
                 <Grid item key={food.id} xs={12} sm={6} md={4}>
-                  <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%'}}>
+                  <Card sx={{ display: 'flex', flexDirection: 'column', height: '100%', marginLeft: '5%', marginTop: '10%'}}>
+                  <CardActionArea onClick={() => setCurrentFood(food)}>
                   <div style={{
                         paddingTop: '75%', // 4:3 aspect ratio (adjust as needed)
                         position: 'relative',
@@ -105,13 +103,14 @@ const AllFoodsPage =() => {
                           resize: 'vertical',
                           overflowY: 'auto',
                         }} />
-                        <Typography>
+                        {/* <Typography>
                           {food.distance} miles
-                        </Typography>
+                        </Typography> */}
                     </CardContent>
                     <CardActions>
-                      <Button size="small" onClick={() => setCurrentFood(food)}>Learn More</Button>
+                      <Button size="small">{food.distance} miles</Button>
                     </CardActions>
+                    </CardActionArea>
                   </Card>
                 </Grid>
               ))}
