@@ -66,7 +66,7 @@ const ViewFoodDialog = (props) => {
         {props.food.title}
       </DialogTitle>
       
-      <DialogContent sx={{
+      <DialogContent dividers sx={{
           display: 'flex',
           flexDirection: 'column',
           gap: '0.8em',
@@ -88,11 +88,6 @@ const ViewFoodDialog = (props) => {
             />
           </DemoContainer>
       </LocalizationProvider>
-        <DialogTitle sx={{
-            fontSize: 20,
-          }}>
-        Food detail:
-      </DialogTitle>
         <LocalizationProvider dateAdapter={AdapterDateFns}>
           <DemoContainer components={['DatePicker']}>
             <DatePicker
