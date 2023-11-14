@@ -21,25 +21,25 @@ import {
 import * as ROUTES from '../../constants/routes';
 import {connect} from 'react-redux';
 import {withRouter} from 'react-router-dom';
-import {useAuth} from '../../components/Firebase/'
- 
+import { useAuth } from "../Firebase/auth";
+import { useNavigate } from "react-router-dom";
 // profile menu component
 const profileMenuItems = [
-  {
-    label: "My Profile",
-    icon: UserCircleIcon,
-    link: '/account',
-  },
-  {
-    label: "Edit Profile",
-    icon: Cog6ToothIcon,
-    link: '/account-edit',
-  },
-  {
-    label: "Setting",
-    icon: LifebuoyIcon,
-    link: '/settings',
-  },
+  // {
+  //   label: "My Profile",
+  //   icon: UserCircleIcon,
+  //   link: '/account',
+  // },
+  // {
+  //   label: "Edit Profile",
+  //   icon: Cog6ToothIcon,
+  //   link: '/account-edit',
+  // },
+  // {
+  //   label: "Setting",
+  //   icon: LifebuoyIcon,
+  //   link: '/settings',
+  // },
   {
     label: "Sign Out",
     icon: PowerIcon,
@@ -60,10 +60,15 @@ const nonAuthMenuItems = [
   }
 ]
  
-function ProfileMenu() {
+const ProfileMenu = (props) => {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
  
-  const closeMenu = () => setIsMenuOpen(false);
+  let navigate = useNavigate();
+  const closeMenu = () => {
+    setIsMenuOpen(false)
+    props.signOut()
+    navigate(ROUTES.LANDING)
+  };
  
   return (
     <Menu open={isMenuOpen} 
@@ -77,7 +82,7 @@ function ProfileMenu() {
         >
           <MenuItem className="flex items-center gap-2 lg:rounded-full">
             {React.createElement(UserCircleIcon, { className: "h-[18px] w-[18px]" })}{" "}
-            {"Account"}
+            {props.user}
           </MenuItem>
           <ChevronDownIcon
             strokeWidth={2.5}
@@ -123,9 +128,12 @@ function ProfileMenu() {
 
 function NonAuthMenu() {
   const [isMenuOpen, setIsMenuOpen] = React.useState(false);
- 
-  const closeMenu = () => setIsMenuOpen(false);
- 
+  let navigate = useNavigate();
+  const closeMenu = () => {
+    setIsMenuOpen(false)
+    navigate(ROUTES.LOG_IN)
+  };
+  
   return (
     <Menu open={isMenuOpen} handler={setIsMenuOpen} placement="bottom-end">
       <MenuHandler>
@@ -152,12 +160,16 @@ function NonAuthMenu() {
           return (
             <MenuItem
               key={label}
-              onClick={closeMenu}
+              onClick={
+                closeMenu
+              }
               className={`flex items-center gap-2 rounded ${
                 isLastItem
                   ? "hover:bg-red-500/10 focus:bg-red-500/10 active:bg-red-500/10"
                   : ""
               }`}
+              component="a" 
+              href='/login'
             >
               {React.createElement(icon, {
                 className: `h-4 w-4 ${isLastItem ? "text-red-500" : ""}`,
@@ -180,25 +192,25 @@ function NonAuthMenu() {
 }
  
 
-function HistoryItem(){
-  return(
-    <Typography
-          key={"FOODS"}
-          as="a"
-          href={ROUTES.MY_FOOD_HISTORY}
-          variant="small"
-          color="blue-gray"
-          className="font-normal"
-        >
-          <MenuItem className="flex items-center gap-2 lg:rounded-full">
-            {React.createElement(ShoppingBagIcon, { className: "h-[18px] w-[18px]" })}{" "}
-            {"FOODS"}
-          </MenuItem>
-        </Typography>
-  )
-}
+// function HistoryItem(){
+//   return(
+//     <Typography
+//           key={"FOODS"}
+//           as="a"
+//           href={ROUTES.MY_FOOD_HISTORY}
+//           variant="small"
+//           color="blue-gray"
+//           className="font-normal"
+//         >
+//           <MenuItem className="flex items-center gap-2 lg:rounded-full">
+//             {React.createElement(ShoppingBagIcon, { className: "h-[18px] w-[18px]" })}{" "}
+//             {"FOODS"}
+//           </MenuItem>
+//         </Typography>
+//   )
+// }
  
-const NavbarAuth = ({authUser}) => {
+const NavbarAuth = (props) => {
   const [isNavOpen, setIsNavOpen] = React.useState(false);
  
   const toggleIsNavOpen = () => setIsNavOpen((cur) => !cur);
@@ -220,8 +232,8 @@ const NavbarAuth = ({authUser}) => {
         >
           Food Sharing
         </Typography>
-        <HistoryItem />
-        <ProfileMenu />
+        {/* <HistoryItem /> */}
+        <ProfileMenu user={props.user.email} signOut={()=>props.signOutFunc()} />
       </div>
     </Navbar>
   );
@@ -255,20 +267,19 @@ const NavbarNonAuth = () => {
   );
 }
 
-const MyNavbar = props => (
-  <div>
-    {props.authUser ? (
-    <NavbarAuth authUser={props.authUser} />
-  ) : (
-    <NavbarNonAuth />
-  )}
-  </div>
+const MyNavbar = () => {
+  const { authUser, isLoading, signOut } = useAuth();
+  return (
+    <div>
+      {authUser && !isLoading ? (
+      <NavbarAuth user={authUser} signOutFunc={signOut}/>
+    ) : (
+      <NavbarNonAuth />
+    )}
+    </div>
+  )
+};
 
-);
-
-const mapStateToProps = state => ({
-  authUser: state.sessionState.authUser
-});
 
 // sign in/ sign up https://www.material-tailwind.com/docs/react/navbar#
-export default connect(mapStateToProps)(MyNavbar);
+export default MyNavbar;

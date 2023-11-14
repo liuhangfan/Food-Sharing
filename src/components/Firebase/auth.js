@@ -2,6 +2,8 @@
 import { createContext, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged, signOut as authSignOut } from 'firebase/auth';
 import { auth } from './firebase';
+import { getFunctions, httpsCallable } from "firebase/functions";
+
 
 export default function useFirebaseAuth() {
   const [authUser, setAuthUser] = useState(null);
@@ -18,10 +20,7 @@ export default function useFirebaseAuth() {
         clear();
         return;
     }
-    setAuthUser({
-        uid: user.uid,
-        email: user.email
-    });
+    setAuthUser(user);
     setIsLoading(false);
   }; 
 
@@ -49,6 +48,20 @@ const AuthUserContext = createContext({
 export function AuthUserProvider({ children }) {
   const auth = useFirebaseAuth();
   return <AuthUserContext.Provider value={auth}>{children}</AuthUserContext.Provider>;
+}
+
+export async function getUserEmailByUID(userId) {
+  try {
+    const functions = getFunctions();
+    const queryUserEmailByUID = httpsCallable(functions, 'queryUserEmailByUID');
+    const result = await queryUserEmailByUID({ uid: userId });
+    const data = result.data;
+    const email = data.text;
+    return email;
+  } catch (error) {
+    console.error('Error:', error);
+    return error;
+  }
 }
 
 export const useAuth = () => useContext(AuthUserContext);

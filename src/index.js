@@ -12,6 +12,7 @@ import SignInPageFB from './pages/SignInPageFB';
 import {AuthUserProvider} from './components/Firebase/auth';
 import MyFoodPage from './pages/MyFoodPage';
 import AllFoodsPage from './pages/AllFoodsPage';
+import { UseLocationProvider } from './components/Geometry/location';
 const AppBase = () => (
     <Routes>
     <Route
@@ -64,6 +65,7 @@ const AppBase = () => (
       path={ROUTES.LOG_IN}
       element={
         <React.Fragment>
+          <Navbar />
            <SignInPageFB />
            <Footer />
         </React.Fragment>
@@ -82,7 +84,9 @@ ReactDOM.render(
   <BrowserRouter>
     <Provider store={store}>
     <AuthUserProvider>
+      <UseLocationProvider>
         <AppBase />
+      </UseLocationProvider>
     </AuthUserProvider>
     </Provider>
   </BrowserRouter>,
