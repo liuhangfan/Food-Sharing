@@ -39,7 +39,6 @@ const AllFoodsPage =() => {
 
       if(isLoadingFoods && !isFetch){
         setIsFetch(true);
-        console.log(latitude, longitude)
         getFoodsByGeo(setFoods, setIsLoadingFoods, miles * 1609.34, [latitude,longitude], tags);
         setIsFetch(false);
       }
@@ -54,11 +53,12 @@ const AllFoodsPage =() => {
           <TagFilter handleChange={(tags)=>{
             setTags(tags);
             setIsLoadingFoods(true);
-            console.log(tags);
+            setFoods([]);
           }} />
           <DistanceFilter value={miles} handleChange={(miles) => {
             setMiles(miles);
             setIsLoadingFoods(true);
+            setFoods([]);
           }} />
           <Divider sx={{paddingBottom: "1em"}}></Divider>
           {isLoadingFoods ? (
@@ -118,6 +118,7 @@ const AllFoodsPage =() => {
           )}
       </Container>
       <ViewFoodDialog food={currentFood}
+                      user={authUser}
                       showDialog={currentFood != null}
                       onCloseDialog={() => setCurrentFood(null)}>
       </ViewFoodDialog>
