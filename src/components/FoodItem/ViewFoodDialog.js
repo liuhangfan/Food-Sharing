@@ -21,6 +21,7 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import SearchIcon from '@mui/icons-material/Search';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { FOOD_CATEGORIES_LIST } from '../../constants/categories';
+import { addHistory } from '../Firebase/firestore';
 const ViewFoodDialog = (props) => {
   const [showContact, setShowContactAlert] = useState(null);
   const [showContactSuccess, setShowContactSuccessAlert] = useState("success");
@@ -30,13 +31,14 @@ const ViewFoodDialog = (props) => {
   if(props.food === null) return null;
 
 
-  const handleGetEmail = async (UID) => {
+  const handleGetEmail = async (foodID,UID) => {
     setLoading(true);
     try {
         const userEmail = await getUserEmailByUID(UID);
         setShowContactSuccessAlert("success");
         setShowContactAlert(userEmail);
         setRequestDisable(true);
+        await addHistory(props.user.uid,foodID,userEmail);
       } catch (error) {
         console.error('Error:', error);
         setShowContactAlert("Something wrong, try it later");
@@ -139,7 +141,7 @@ const ViewFoodDialog = (props) => {
       <DialogActions>
           <LoadingButton
           size="small"
-          onClick={() => handleGetEmail(props.food.uid)}
+          onClick={() => handleGetEmail(props.food.id,props.food.uid)}
           endIcon={<SearchIcon />}
           loading={loading}
           loadingPosition="end"
