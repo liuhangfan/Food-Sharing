@@ -23,7 +23,7 @@ exports.helloWorld = onRequest((request, response) => {
 });
 // The Cloud Functions for Firebase SDK to create Cloud Functions and triggers.
 
-exports.queryUserEmailByUID = onCall(async (request) => {
+exports.queryUserEmailByUIDNew = onCall(async (request) => {
   const uid = request.data.uid;
   try {
     const userRecord = await getAuth().getUser(uid);

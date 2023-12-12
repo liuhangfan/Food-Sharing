@@ -53,8 +53,9 @@ export function AuthUserProvider({ children }) {
 export async function getUserEmailByUID(userId) {
   try {
     const functions = getFunctions();
-    const queryUserEmailByUID = httpsCallable(functions, 'queryUserEmailByUID');
-    const result = await queryUserEmailByUID({ uid: userId });
+    const queryUserEmailByUIDNew = httpsCallable(functions, 'queryUserEmailByUIDNew');
+    console.log("get queryUserEmailByUIDNew", queryUserEmailByUIDNew)
+    const result = await queryUserEmailByUIDNew({ uid: userId });
     const data = result.data;
     const email = data.text;
     return email;
