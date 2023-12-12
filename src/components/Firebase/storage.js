@@ -3,7 +3,7 @@ import { deleteObject, getDownloadURL as getStorageDownloadURL, ref, uploadBytes
 import { storage } from './firebase';
  
 // Bucket URL from Storage in Firebase Console
-const BUCKET_URL = "gs://food-sharing-16423.appspot.com";
+const BUCKET_URL = "gs://food-sharing-lmu.appspot.com";
  
 // Uploads image and returns the storage bucket
 export async function uploadImage(image, uid) {

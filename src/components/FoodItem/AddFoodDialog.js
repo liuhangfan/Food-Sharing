@@ -48,8 +48,7 @@ const AddFoodDialog = (props) => {
 
   // Check whether any of the form fields are unedited
   const isDisabled = () => formFields.fileName === DEFAULT_FILE_NAME || !formFields.pickupBeforeDate || !formFields.bestBeforeDate
-    || !formFields.bestBeforeDate || formFields.description.length === 0 || formFields.title.length === 0;
-  // || formFields.address.length === 0;
+    || !formFields.bestBeforeDate || formFields.description.length === 0 || formFields.title.length === 0 || formFields.address === null;
 
   const updateFormField = (event, field) => {
     setFormFields(prevState => ({ ...prevState, [field]: event.target.value }));
@@ -211,7 +210,7 @@ const AddFoodDialog = (props) => {
             Submitting...
           </Button> :
           <Button color="secondary" variant="contained" onClick={handleSubmit} 
-          //disabled={isDisabled()}
+          disabled={isDisabled()}
           >
             Submit
           </Button>}
